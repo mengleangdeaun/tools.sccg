@@ -1,0 +1,136 @@
+// New columns are only ever appended, so existing rows and sheet formulas keep working.
+export const SHEET_SCHEMA = {
+  Assets: [
+    "id",
+    "tag_code",
+    "name",
+    "category_id",
+    "brand",
+    "model",
+    "serial_number",
+    "status",
+    "condition",
+    "location_id",
+    "department",
+    "custodian_email",
+    "assigned_date",
+    "expected_return",
+    "purchase_date",
+    "purchase_price",
+    "supplier",
+    "warranty_expiry",
+    "notes",
+    "image_url",
+    "created_by",
+    "created_at",
+    "updated_at",
+    "archived_at",
+  ],
+  Asset_Activity: [
+    "id",
+    "at",
+    "actor_email",
+    "kind",
+    "entity",
+    "entity_id",
+    "from_value",
+    "to_value",
+    "body",
+  ],
+  Asset_Maintenance: [
+    "id",
+    "asset_id",
+    "service_type",
+    "vendor",
+    "cost",
+    "started_at",
+    "completed_at",
+    "status",
+    "notes",
+    "created_by",
+  ],
+  Asset_Categories: [
+    "id",
+    "name",
+    "prefix",
+    "icon",
+    "description",
+    "sort_order",
+    "archived_at",
+  ],
+  Asset_Locations: [
+    "id",
+    "name",
+    "building",
+    "floor",
+    "room",
+    "branch",
+    "archived_at",
+  ],
+  Team_Members: [
+    "id",
+    "email",
+    "name",
+    "role_id",
+    "department",
+    "status",
+    "invited_by",
+    "last_login_at",
+    "avatar_url",
+  ],
+  Roles: ["id", "name", "permissions", "is_system", "archived_at"],
+} as const;
+
+export type TabName = keyof typeof SHEET_SCHEMA;
+
+export const TAB_NAMES = Object.keys(SHEET_SCHEMA) as TabName[];
+
+export const DEFAULT_CATEGORIES = [
+  ["CAT-LAPTOP", "Laptops & Notebooks", "AST-LP-", "Laptop", "Company-issued laptops and portable workstations.", "1", ""],
+  ["CAT-DESKTOP", "Desktops & Workstations", "AST-DT-", "Monitor", "Studio workstations, towers, and mini-PCs.", "2", ""],
+  ["CAT-MONITOR", "Monitors & Displays", "AST-MN-", "Tv", "External 4K/2K monitors and presentation screens.", "3", ""],
+  ["CAT-MOBILE", "Phones & Tablets", "AST-MB-", "Smartphone", "Test devices, company mobile phones, and iPads.", "4", ""],
+  ["CAT-STUDIO", "Audio & Studio Gear", "AST-AV-", "Camera", "Cameras, microphones, lighting, and audio interfaces.", "5", ""],
+  ["CAT-FURNITURE", "Office Furniture", "AST-FN-", "Armchair", "Ergonomic chairs, standing desks, and meeting tables.", "6", ""],
+  ["CAT-NETWORK", "Networking & Servers", "AST-NW-", "Server", "Routers, switches, access points, and rack units.", "7", ""],
+];
+
+export const DEFAULT_LOCATIONS = [
+  ["LOC-HQ-F1", "HQ - Floor 1 (Reception & Lobby)", "HQ Tower", "Floor 1", "Reception", "Phnom Penh", ""],
+  ["LOC-HQ-F2", "HQ - Floor 2 (Operations & Dev)", "HQ Tower", "Floor 2", "Open Space", "Phnom Penh", ""],
+  ["LOC-HQ-F3", "HQ - Floor 3 (Creative Studio)", "HQ Tower", "Floor 3", "Studio 301", "Phnom Penh", ""],
+  ["LOC-HQ-SR", "HQ - Server Room", "HQ Tower", "Basement", "Secure Room B1", "Phnom Penh", ""],
+  ["LOC-WAREHOUSE", "Central Warehouse", "Logistics Hub", "Ground", "Storage Bay A", "Phnom Penh", ""],
+];
+
+export const DEFAULT_ROLES = [
+  [
+    "role-admin",
+    "Administrator",
+    "assets.view,assets.create,assets.edit,assets.delete,assets.custody,assets.maintenance,assets.print,categories.manage,locations.manage,team.manage,roles.manage,system.manage",
+    "TRUE",
+    "",
+  ],
+  [
+    "role-manager",
+    "Asset Manager",
+    "assets.view,assets.create,assets.edit,assets.custody,assets.maintenance,assets.print,categories.manage,locations.manage",
+    "TRUE",
+    "",
+  ],
+  [
+    "role-tech",
+    "Technician",
+    "assets.view,assets.edit,assets.custody,assets.maintenance,assets.print",
+    "TRUE",
+    "",
+  ],
+  [
+    "role-viewer",
+    "Viewer",
+    "assets.view",
+    "TRUE",
+    "",
+  ],
+];
+
