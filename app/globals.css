@@ -156,6 +156,10 @@
   html {
     @apply font-sans;
   }
+  /* Long words, emails and URLs wrap instead of overflowing. In flex rows the text side also needs min-w-0. */
+  body {
+    overflow-wrap: break-word;
+  }
   /* Figures line up in columns. */
   table {
     font-variant-numeric: tabular-nums;
@@ -194,32 +198,37 @@
   }
 }
 
-/* Print Styles for QR Labels */
-@media print {
-  body {
-    background: white !important;
-    color: black !important;
-  }
-  header, aside, nav, .no-print, [data-sidebar="sidebar"], [data-sidebar="inset"] > header {
-    display: none !important;
-  }
-  .print-area {
-    display: block !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    width: 100% !important;
-  }
-  .print-sticker-single {
-    width: 50mm;
-    height: 30mm;
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-  .print-sheet-grid {
-    display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 2mm !important;
-    page-break-inside: avoid;
+/* QR label printing: 100 x 100 mm thermal roll, one label per page. Labels render into #print-root. */
+@media screen {
+  #print-root {
+    display: none;
   }
 }
 
+@media print {
+  @page {
+    size: 100mm 100mm;
+    margin: 0;
+  }
+  html,
+  body {
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  body > *:not(#print-root) {
+    display: none !important;
+  }
+  #print-root {
+    display: block !important;
+  }
+  .qr-label {
+    break-after: page;
+    break-inside: avoid;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .qr-label:last-child {
+    break-after: auto;
+  }
+}

@@ -228,9 +228,9 @@ export function AssetInventoryView() {
       </div>
       <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
         <dt className="text-muted-foreground">Custodian</dt>
-        <dd className="truncate text-right text-foreground">{asset.custodian_email || "In stock"}</dd>
+        <dd className="truncate text-right text-foreground" title={asset.custodian_email || undefined}>{asset.custodian_email || "In stock"}</dd>
         <dt className="text-muted-foreground">Location</dt>
-        <dd className="truncate text-right text-foreground">{getLocationName(asset.location_id)}</dd>
+        <dd className="truncate text-right text-foreground" title={getLocationName(asset.location_id)}>{getLocationName(asset.location_id)}</dd>
       </dl>
       <div className="mt-auto flex flex-wrap gap-2">
         {can("assets.print") && <ActionButton variant="outline" icon={<QrCode />} label="Print label" showLabel onClick={() => openPrintModal([asset], "single")} />}

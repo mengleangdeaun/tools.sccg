@@ -114,7 +114,7 @@ export function CustodyView() {
               </button>
               <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
                 <dt className="text-muted-foreground">Custodian</dt>
-                <dd className="truncate text-right text-foreground">{asset.custodian_email}</dd>
+                <dd className="truncate text-right text-foreground" title={asset.custodian_email}>{asset.custodian_email}</dd>
                 <dt className="text-muted-foreground">Assigned</dt>
                 <dd className="text-right text-foreground">{formatDisplayDate(asset.assigned_date)}</dd>
                 <dt className="text-muted-foreground">Return</dt>

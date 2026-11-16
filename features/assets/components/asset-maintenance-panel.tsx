@@ -1,5 +1,6 @@
 "use client";
 
+import { formatCurrency } from "@/lib/format";
 import React from "react";
 import { Asset, AssetMaintenance } from "@/lib/types";
 import { useAssets } from "@/context/assets-context";
@@ -57,9 +58,9 @@ export function AssetMaintenancePanel({ asset }: AssetMaintenancePanelProps) {
         <div className="space-y-3">
           {records.map((record) => (
             <div key={record.id} className="border rounded-lg p-3 bg-card/60 space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-foreground">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex min-w-0 items-center gap-2">
+                  <span className="truncate text-sm font-semibold text-foreground" title={record.service_type}>
                     {record.service_type}
                   </span>
                   {record.status === "completed" ? (
@@ -68,22 +69,24 @@ export function AssetMaintenancePanel({ asset }: AssetMaintenancePanelProps) {
                     </Badge>
                   ) : (
                     <Badge variant="outline" className="border-warning/20 bg-warning/10 text-warning">
-                      In Progress
+                      In progress
                     </Badge>
                   )}
                 </div>
-                <span className="text-sm font-medium tabular-nums text-foreground">
-                  ${record.cost || "0"}
+                <span className="shrink-0 text-sm font-medium tabular-nums text-foreground">
+                  {formatCurrency(parseFloat(record.cost) || 0)}
                 </span>
               </div>
 
               {record.notes && (
-                <p className="text-sm leading-relaxed text-muted-foreground">{record.notes}</p>
+                <p className="text-sm leading-relaxed break-words text-muted-foreground">{record.notes}</p>
               )}
 
-              <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t">
-                <span>Vendor: <strong>{record.vendor || "Internal IT"}</strong></span>
-                <span>{formatDisplayDate(record.started_at)}</span>
+              <div className="flex items-center justify-between gap-3 border-t pt-1 text-xs text-muted-foreground">
+                <span className="min-w-0 truncate" title={record.vendor || "Internal IT"}>
+                  Vendor: <strong>{record.vendor || "Internal IT"}</strong>
+                </span>
+                <span className="shrink-0">{formatDisplayDate(record.started_at)}</span>
               </div>
             </div>
           ))}

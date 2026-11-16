@@ -129,15 +129,15 @@ export function AssetTimelinePanel({ asset }: AssetTimelinePanelProps) {
         <div className="text-xs mt-0.5 space-y-1">
           <div className="flex items-center gap-1.5 text-foreground flex-wrap">
             <span className="text-muted-foreground">Custody:</span>
-            <span className="font-medium bg-muted px-1.5 py-0.5 rounded text-xs">
+            <span className="max-w-full truncate rounded bg-muted px-1.5 py-0.5 text-xs font-medium" title={entry.from_value || "None"}>
               {entry.from_value || "None"}
             </span>
             <ArrowRight className="size-3 text-muted-foreground shrink-0" />
-            <span className="font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded text-xs">
+            <span className="max-w-full truncate rounded bg-primary/10 px-1.5 py-0.5 text-xs font-semibold text-primary" title={entry.to_value}>
               {entry.to_value}
             </span>
           </div>
-          {entry.body && <p className="text-xs text-muted-foreground">{entry.body}</p>}
+          {entry.body && <p className="text-xs break-words text-muted-foreground">{entry.body}</p>}
         </div>
       );
     }
@@ -221,12 +221,12 @@ export function AssetTimelinePanel({ asset }: AssetTimelinePanelProps) {
                       {getEventIcon(entry.kind)}
                     </span>
 
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-sm font-medium text-foreground">
+                    <div className="flex min-w-0 items-center justify-between gap-2">
+                      <div className="flex min-w-0 items-center gap-1.5">
+                        <span className="truncate text-sm font-medium text-foreground" title={entry.actor_email}>
                           {personName(entry.actor_email)}
                         </span>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="shrink-0 text-xs text-muted-foreground">
                           {entry.at ? entry.at.slice(11, 16) : ""}
                         </span>
                       </div>

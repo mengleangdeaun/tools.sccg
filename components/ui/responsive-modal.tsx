@@ -70,9 +70,9 @@ export function ResponsiveModal({
   const layout = (Title: typeof DialogTitle, Description: typeof DialogDescription) => (
     <>
       <header className="shrink-0 space-y-2 border-b px-4 pt-3 pb-3 md:px-6 md:pt-5 md:pb-4">
-        <div className="space-y-0.5 pr-10">
-          <Title className="text-base leading-snug font-semibold md:text-lg">{title}</Title>
-          {description && <Description className="text-sm text-muted-foreground">{description}</Description>}
+        <div className="min-w-0 space-y-0.5 pr-10">
+          <Title className="text-base leading-snug font-semibold break-words md:text-lg">{title}</Title>
+          {description && <Description className="text-sm break-words text-muted-foreground">{description}</Description>}
         </div>
         {header}
       </header>

@@ -112,11 +112,11 @@ export function LocationsView() {
                 </h3>
                 <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-sm">
                   <dt className="text-muted-foreground">Building</dt>
-                  <dd className="truncate text-foreground">{loc.building || "—"}</dd>
+                  <dd className="min-w-0 break-words text-foreground">{loc.building || "—"}</dd>
                   <dt className="text-muted-foreground">Floor & room</dt>
-                  <dd className="truncate text-foreground">{[loc.floor, loc.room].filter(Boolean).join(" · ") || "—"}</dd>
+                  <dd className="min-w-0 break-words text-foreground">{[loc.floor, loc.room].filter(Boolean).join(" · ") || "—"}</dd>
                   <dt className="text-muted-foreground">Branch</dt>
-                  <dd className="truncate text-foreground">{loc.branch || "—"}</dd>
+                  <dd className="min-w-0 break-words text-foreground">{loc.branch || "—"}</dd>
                 </dl>
                 <div className="flex items-center justify-between gap-2 border-t pt-2">
                   <span className="text-xs text-muted-foreground tabular-nums">

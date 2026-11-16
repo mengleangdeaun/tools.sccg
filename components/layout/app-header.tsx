@@ -45,17 +45,18 @@ export function AppHeader({ activeView }: AppHeaderProps) {
 
   return (
     <header className="sticky top-0 z-30 flex h-12 shrink-0 items-center justify-between gap-2 border-b bg-background px-4">
-      <div className="flex items-center gap-2">
-        <SidebarTrigger className="-ml-1" />
-        <Separator orientation="vertical" className="mr-2 h-4 self-center" />
-        <Breadcrumb>
-          <BreadcrumbList className="text-sm">
+      {/* min-w-0 lets the page title truncate instead of pushing the buttons off small screens. */}
+      <div className="flex min-w-0 flex-1 items-center gap-2">
+        <SidebarTrigger className="-ml-1 shrink-0" />
+        <Separator orientation="vertical" className="mr-2 h-4 shrink-0 self-center" />
+        <Breadcrumb className="min-w-0">
+          <BreadcrumbList className="flex-nowrap text-sm">
             <BreadcrumbItem className="hidden md:block">
               <span className="text-muted-foreground">{current.section}</span>
             </BreadcrumbItem>
             <BreadcrumbSeparator className="hidden md:block" />
-            <BreadcrumbItem>
-              <BreadcrumbPage className="font-medium text-foreground">
+            <BreadcrumbItem className="min-w-0">
+              <BreadcrumbPage className="truncate font-medium text-foreground">
                 {current.title}
               </BreadcrumbPage>
             </BreadcrumbItem>
@@ -63,7 +64,7 @@ export function AppHeader({ activeView }: AppHeaderProps) {
         </Breadcrumb>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2">
         {/* Quick QR Scanner Trigger */}
         <Button
           variant="outline"

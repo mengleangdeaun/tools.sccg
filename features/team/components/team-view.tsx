@@ -104,8 +104,8 @@ export function TeamView() {
               {member(p)}
               <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                 {status(p)}
-                <span>{roleName(p.role_id)}</span>
-                {p.department && <span>· {p.department}</span>}
+                <span className="min-w-0 break-words">{roleName(p.role_id)}</span>
+                {p.department && <span className="min-w-0 break-words">· {p.department}</span>}
                 <span className="ml-auto tabular-nums">{assignedCount(p)} assets</span>
               </div>
               {canEdit(p) && <div>{action(p, true)}</div>}

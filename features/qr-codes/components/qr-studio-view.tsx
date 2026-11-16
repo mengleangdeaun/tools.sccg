@@ -164,7 +164,7 @@ export function QrStudioView() {
               </div>
               <div className="flex items-center justify-between gap-2">
                 <AssetStatusBadge status={asset.status} />
-                <span className="text-sm text-muted-foreground">{categoryName(asset)}</span>
+                <span className="min-w-0 truncate text-sm text-muted-foreground" title={categoryName(asset)}>{categoryName(asset)}</span>
               </div>
               <div className="mt-auto">{printOne(asset, true)}</div>
             </Card>

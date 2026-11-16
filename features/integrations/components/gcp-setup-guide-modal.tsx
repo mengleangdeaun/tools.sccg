@@ -4,9 +4,10 @@ import React, { useEffect, useState } from "react";
 import { ResponsiveModal } from "@/components/ui/responsive-modal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Spinner } from "@/components/ui/spinner";
 import { FormActions } from "@/components/ui/form-layout";
 import { useAssets } from "@/context/assets-context";
-import { AlertCircle, CheckCircle2, ExternalLink, RefreshCw, Sparkles } from "lucide-react";
+import { AlertCircle, CheckCircle2, ExternalLink, Sparkles } from "lucide-react";
 
 export function GcpSetupGuideModal() {
   const { isGuideModalOpen, setIsGuideModalOpen, showToast, refreshData } = useAssets();
@@ -71,11 +72,27 @@ export function GcpSetupGuideModal() {
       }
     >
       <div className="space-y-4 text-sm">
+        {loading && !status && (
+          <div className="flex items-center justify-center gap-2 py-10 text-muted-foreground">
+            <Spinner />
+            Checking the sheet…
+          </div>
+        )}
+
+        {!loading && !status && (
+          <div role="alert" className="flex gap-2.5 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-destructive">
+            <AlertCircle aria-hidden className="mt-0.5 size-4 shrink-0" />
+            <span className="min-w-0 break-words">Couldn't reach the Google Sheet. Check the sheet ID and service account in .env, then reopen this dialog.</span>
+          </div>
+        )}
+
         {status?.spreadsheetUrl && (
-          <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/40">
-            <div>
-              <p className="font-semibold text-foreground">{status.spreadsheetTitle || "Google Sheet"}</p>
-              <p className="font-mono text-xs text-muted-foreground truncate max-w-xs">
+          <div className="flex items-center gap-3 rounded-lg border bg-muted/40 p-3">
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-semibold text-foreground" title={status.spreadsheetTitle}>
+                {status.spreadsheetTitle || "Google Sheet"}
+              </p>
+              <p className="truncate font-mono text-xs text-muted-foreground" title={status.spreadsheetId}>
                 {status.spreadsheetId}
               </p>
             </div>
@@ -83,42 +100,51 @@ export function GcpSetupGuideModal() {
               href={status.spreadsheetUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 text-primary hover:underline font-medium"
+              className="inline-flex shrink-0 items-center gap-1 font-medium whitespace-nowrap text-primary hover:underline"
             >
-              Open Sheet <ExternalLink className="size-3" />
+              Open sheet <ExternalLink aria-hidden className="size-3.5" />
+              <span className="sr-only">(opens in a new tab)</span>
             </a>
           </div>
         )}
 
-        {/* Tabs Verification List */}
-        <div className="space-y-2">
-          <h3 className="text-sm font-semibold text-foreground">
-            Required tabs
-          </h3>
-          <div className="divide-y border rounded-lg overflow-hidden bg-card">
-            {status?.tabs?.map((tab: any) => (
-              <div key={tab.name} className="p-2.5 flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <span className="font-mono font-semibold text-foreground">{tab.name}</span>
-                  {tab.missingColumns?.length > 0 && (
-                    <p className="text-xs text-warning">
-                      Missing columns: {tab.missingColumns.join(", ")}
-                    </p>
-                  )}
-                </div>
-                {tab.exists && tab.missingColumns.length === 0 ? (
-                  <Badge variant="outline" className="gap-1 border-success/20 bg-success/10 text-success">
-                    <CheckCircle2 className="size-3" /> Ready ({tab.rowCount} rows)
-                  </Badge>
-                ) : (
-                  <Badge variant="outline" className="gap-1 border-warning/20 bg-warning/10 text-warning">
-                    <AlertCircle className="size-3" /> Action required
-                  </Badge>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
+        {status?.tabs?.length > 0 && (
+          <section className="space-y-2">
+            <h3 className="text-sm font-semibold text-foreground">Required tabs</h3>
+            <ul className="divide-y overflow-hidden rounded-lg border bg-card">
+              {status.tabs.map((tab: any) => {
+                const ready = tab.exists && tab.missingColumns.length === 0;
+                return (
+                  <li key={tab.name} className="flex items-start justify-between gap-3 px-3 py-2.5">
+                    <div className="min-w-0 flex-1 space-y-0.5">
+                      <p className="truncate font-mono text-sm font-medium text-foreground" title={tab.name}>
+                        {tab.name}
+                      </p>
+                      {ready ? (
+                        <p className="text-xs text-muted-foreground tabular-nums">
+                          {tab.rowCount} row{tab.rowCount === 1 ? "" : "s"}
+                        </p>
+                      ) : (
+                        <p className="text-xs break-words text-warning">
+                          {!tab.exists ? "Tab is missing." : `Missing columns: ${tab.missingColumns.join(", ")}`}
+                        </p>
+                      )}
+                    </div>
+                    {ready ? (
+                      <Badge variant="outline" className="shrink-0 gap-1 border-success/20 bg-success/10 text-success">
+                        <CheckCircle2 aria-hidden className="size-3" /> Ready
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="shrink-0 gap-1 border-warning/20 bg-warning/10 text-warning">
+                        <AlertCircle aria-hidden className="size-3" /> Needs setup
+                      </Badge>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
       </div>
     </ResponsiveModal>
   );

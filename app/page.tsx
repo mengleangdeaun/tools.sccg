@@ -2,6 +2,7 @@
 
 import React, { use, useState, useEffect } from "react";
 import { ConfirmProvider } from "@/components/shared/confirm-dialog";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppHeader } from "@/components/layout/app-header";
@@ -120,7 +121,10 @@ export default function Page({
     <AuthProvider>
       <ConfirmProvider>
         <AssetsProvider>
-          <AssetAppShell initialView={initialView} initialItem={initialItem} />
+          {/* One tooltip group, so moving between tooltips shows the next one instantly. */}
+          <TooltipProvider>
+            <AssetAppShell initialView={initialView} initialItem={initialItem} />
+          </TooltipProvider>
         </AssetsProvider>
       </ConfirmProvider>
     </AuthProvider>

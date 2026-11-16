@@ -38,11 +38,11 @@ function DetailRow({ label, value, icon }: { label: string; value?: React.ReactN
   if (!value) return null;
   return (
     <div className="flex items-center justify-between gap-3 border-b py-2 text-sm">
-      <span className="text-muted-foreground flex items-center gap-1.5">
+      <span className="flex shrink-0 items-center gap-1.5 text-muted-foreground">
         {icon}
         {label}
       </span>
-      <span className="font-medium text-foreground text-right">{value}</span>
+      <span className="min-w-0 text-right font-medium break-words text-foreground">{value}</span>
     </div>
   );
 }
