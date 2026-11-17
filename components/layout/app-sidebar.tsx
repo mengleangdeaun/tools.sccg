@@ -28,6 +28,7 @@ import {
   ScanLine,
   ShieldCheck,
   Tags,
+  Truck,
   UserPen,
   Users,
   Wrench,
@@ -197,6 +198,20 @@ export function AppSidebar({ activeView, setActiveView }: AppSidebarProps) {
                   >
                     <Building className="h-4 w-4" />
                     <span>Office Locations</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
+
+              {can("suppliers.manage") && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    isActive={activeView === "suppliers"}
+                    onClick={() => setActiveView("suppliers")}
+                    tooltip="Suppliers"
+                    className="gap-2.5 font-medium text-sm"
+                  >
+                    <Truck className="h-4 w-4" />
+                    <span>Suppliers</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               )}

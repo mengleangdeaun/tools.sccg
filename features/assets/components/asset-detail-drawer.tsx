@@ -9,6 +9,7 @@ import {
   ArrowDownLeft,
   ArrowRight,
   Clock,
+  Copy,
   Edit2,
   FileText,
   History,
@@ -55,6 +56,7 @@ export function AssetDetailDrawer() {
     setDetailDrawerTab,
     categories,
     locations,
+    suppliers,
     openCheckoutModal,
     openCheckinModal,
     openPrintModal,
@@ -136,6 +138,19 @@ export function AssetDetailDrawer() {
               <Printer className="size-3.5" />
               Print QR
             </Button>
+
+            {can("assets.create") && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => openAssetModal(undefined, asset)}
+                aria-label={`Duplicate ${asset.tag_code}`}
+                title="Duplicate"
+                className="h-8 w-8 p-0"
+              >
+                <Copy className="size-3.5" />
+              </Button>
+            )}
 
             {can("assets.edit") && (
               <Button
@@ -256,7 +271,8 @@ export function AssetDetailDrawer() {
                 label="Purchase Cost"
                 value={asset.purchase_price ? formatCurrency(parseFloat(asset.purchase_price) || 0) : "—"}
               />
-              <DetailRow label="Supplier" value={asset.supplier || "—"} />
+              <DetailRow label="Supplier" value={suppliers.find((s) => s.id === asset.supplier_id)?.name || asset.supplier || "—"} />
+              <DetailRow label="Invoice No" value={asset.invoice_no || "—"} />
               <DetailRow
                 label="Warranty Expiry"
                 value={

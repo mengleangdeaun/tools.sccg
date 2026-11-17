@@ -25,6 +25,8 @@ export const SHEET_SCHEMA = {
     "created_at",
     "updated_at",
     "archived_at",
+    "invoice_no",
+    "supplier_id",
   ],
   Asset_Activity: [
     "id",
@@ -67,6 +69,16 @@ export const SHEET_SCHEMA = {
     "branch",
     "archived_at",
   ],
+  Asset_Suppliers: [
+    "id",
+    "name",
+    "contact_name",
+    "phone",
+    "email",
+    "address",
+    "notes",
+    "archived_at",
+  ],
   Team_Members: [
     "id",
     "email",
@@ -107,14 +119,14 @@ export const DEFAULT_ROLES = [
   [
     "role-admin",
     "Administrator",
-    "assets.view,assets.create,assets.edit,assets.delete,assets.custody,assets.maintenance,assets.print,categories.manage,locations.manage,team.manage,roles.manage,system.manage",
+    "assets.view,assets.create,assets.edit,assets.delete,assets.custody,assets.maintenance,assets.print,categories.manage,locations.manage,suppliers.manage,team.manage,roles.manage,system.manage",
     "TRUE",
     "",
   ],
   [
     "role-manager",
     "Asset Manager",
-    "assets.view,assets.create,assets.edit,assets.custody,assets.maintenance,assets.print,categories.manage,locations.manage",
+    "assets.view,assets.create,assets.edit,assets.custody,assets.maintenance,assets.print,categories.manage,locations.manage,suppliers.manage",
     "TRUE",
     "",
   ],

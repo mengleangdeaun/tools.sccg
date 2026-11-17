@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { ResponsiveSelect } from "@/components/ui/responsive-select";
+import { SearchableSelect } from "@/components/shared/searchable-select";
 import { PageHeader } from "@/components/shared/page-header";
 import { DataColumn, DataTable } from "@/components/shared/data-table";
 import { CardList } from "@/components/shared/card-list";
@@ -133,8 +133,9 @@ export function QrStudioView() {
           />
         </div>
         <div className="w-48">
-          <ResponsiveSelect
+          <SearchableSelect
             aria-label="Category"
+            searchPlaceholder="Search categories"
             value={selectedCat}
             onValueChange={setSelectedCat}
             options={[{ value: "All", label: "All categories" }, ...categories.map((c) => ({ value: c.id, label: c.name }))]}

@@ -32,6 +32,14 @@ export function DatePicker({
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false);
 
+  const thisYear = new Date().getFullYear();
+  let startMonth = new Date(thisYear - 30, 0);
+  let endMonth = new Date(thisYear + 15, 11);
+  if (date) {
+    if (date < startMonth) startMonth = new Date(date.getFullYear(), 0);
+    if (date > endMonth) endMonth = new Date(date.getFullYear(), 11);
+  }
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
@@ -57,11 +65,41 @@ export function DatePicker({
         <Calendar
           mode="single"
           selected={date}
+          captionLayout="dropdown"
+          defaultMonth={date ?? new Date()}
+          startMonth={startMonth}
+          endMonth={endMonth}
           onSelect={(selected) => {
             onSelectDate?.(selected);
             setOpen(false);
           }}
         />
+        <div className="flex items-center justify-between border-t p-2">
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            onClick={() => {
+              onSelectDate?.(new Date());
+              setOpen(false);
+            }}
+          >
+            Today
+          </Button>
+          {date && (
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              onClick={() => {
+                onSelectDate?.(undefined);
+                setOpen(false);
+              }}
+            >
+              Clear
+            </Button>
+          )}
+        </div>
       </PopoverContent>
     </Popover>
   );

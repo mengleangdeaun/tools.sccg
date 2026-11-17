@@ -29,6 +29,7 @@ const VIEW_TITLES: Record<NavView, { section: string; title: string }> = {
   scanner: { section: "Operations", title: "Barcode Scanner" },
   categories: { section: "Configuration", title: "Asset Categories" },
   locations: { section: "Configuration", title: "Office Locations" },
+  suppliers: { section: "Configuration", title: "Suppliers" },
   team: { section: "Administration", title: "Team Members" },
   roles: { section: "Administration", title: "Roles & Permissions" },
 };

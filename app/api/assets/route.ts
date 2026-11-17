@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentMember, requirePermission } from "@/lib/auth/dal";
-import { getAllAssetData, saveAsset } from "@/lib/assets-store";
+import { getAllAssetData, registerAssets, saveAsset } from "@/lib/assets-store";
 import { errorStatus, SheetError } from "@/lib/sheets/core";
 import { patchRow } from "@/lib/sheets/table";
 
@@ -23,9 +23,14 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const member = await requirePermission("assets.create");
-    const body = await req.json();
+    const { quantity, serial_numbers, ...body } = await req.json();
+    if (quantity !== undefined || serial_numbers !== undefined) {
+      const serials = Array.isArray(serial_numbers) ? serial_numbers.map(String) : [];
+      const assets = await registerAssets(body, Number(quantity ?? 1), serials, member.email);
+      return NextResponse.json({ success: true, asset: assets[0], assets });
+    }
     const asset = await saveAsset(body, member.email);
-    return NextResponse.json({ success: true, asset });
+    return NextResponse.json({ success: true, asset, assets: [asset] });
   } catch (error: unknown) {
     return fail(error, "Failed to save asset");
   }

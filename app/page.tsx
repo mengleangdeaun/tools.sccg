@@ -27,6 +27,7 @@ import { MaintenanceView } from "@/features/maintenance/components/maintenance-v
 import { MaintenanceModal } from "@/features/maintenance/components/maintenance-modal";
 import { CategoriesView } from "@/features/categories/components/categories-view";
 import { LocationsView } from "@/features/locations/components/locations-view";
+import { SuppliersView } from "@/features/suppliers/components/suppliers-view";
 import { TeamView } from "@/features/team/components/team-view";
 import { RolesView } from "@/features/team/components/roles-view";
 import { GcpSetupGuideModal } from "@/features/integrations/components/gcp-setup-guide-modal";
@@ -40,6 +41,7 @@ const VIEWS: NavView[] = [
   "scanner",
   "categories",
   "locations",
+  "suppliers",
   "team",
   "roles",
 ];
@@ -87,6 +89,7 @@ function AssetAppShell({ initialView, initialItem }: { initialView: NavView; ini
                 {activeView === "scanner" && <QrScannerView />}
                 {activeView === "categories" && <CategoriesView />}
                 {activeView === "locations" && <LocationsView />}
+                {activeView === "suppliers" && <SuppliersView />}
                 {activeView === "team" && <TeamView />}
                 {activeView === "roles" && <RolesView />}
               </div>

@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { ResponsiveModal } from "@/components/ui/responsive-modal";
 import { ResponsiveSelect } from "@/components/ui/responsive-select";
+import { SearchableSelect } from "@/components/shared/searchable-select";
 import { Textarea } from "@/components/ui/textarea";
 import { CONTROL_HEIGHT, Field, FieldRow, FormFooter } from "@/components/ui/form-layout";
 import { useAssets } from "@/context/assets-context";
@@ -67,12 +68,12 @@ function CheckinForm({ asset }: { asset: Asset }) {
             <ResponsiveSelect id="checkin-condition" value={condition} onValueChange={setCondition} options={RETURN_CONDITION_OPTIONS} className={`${CONTROL_HEIGHT} w-full`} />
           </Field>
           <Field label="Return location" htmlFor="checkin-location">
-            <ResponsiveSelect
+            <SearchableSelect
               id="checkin-location"
               value={locationId}
               onValueChange={setLocationId}
               options={[{ value: "", label: "Keep current location" }, ...locations.map((loc) => ({ value: loc.id, label: loc.name }))]}
-              placeholder="Select a location"
+              searchPlaceholder="Search locations"
               className={`${CONTROL_HEIGHT} w-full`}
             />
           </Field>

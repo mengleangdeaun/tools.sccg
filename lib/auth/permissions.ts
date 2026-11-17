@@ -21,6 +21,7 @@ export const PERMISSION_GROUPS = [
     permissions: [
       { key: "categories.manage", label: "Manage asset categories" },
       { key: "locations.manage", label: "Manage office locations" },
+      { key: "suppliers.manage", label: "Manage suppliers" },
     ],
   },
   {

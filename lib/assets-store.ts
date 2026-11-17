@@ -5,11 +5,13 @@ import {
   AssetCategory,
   AssetLocation,
   AssetMaintenance,
+  AssetSupplier,
   Person,
   Role,
 } from "./types";
 import { Fields, Row, SheetError } from "./sheets/core";
 import { appendRows, loadAll, patchRow, updateWhere } from "./sheets/table";
+import { normalizeSerials } from "./serials";
 
 const newId = (prefix: string) => `${prefix}-${randomUUID().slice(0, 8)}`;
 const now = () => new Date().toISOString();
@@ -32,6 +34,10 @@ export async function getAllAssetData() {
     .filter((r) => r.id && !r.archived_at)
     .map((r) => r as unknown as AssetLocation);
 
+  const suppliers: AssetSupplier[] = tabs.Asset_Suppliers.rows
+    .filter((r) => r.id && !r.archived_at)
+    .map((r) => r as unknown as AssetSupplier);
+
   const maintenance: AssetMaintenance[] = tabs.Asset_Maintenance.rows
     .filter((r) => r.id)
     .map((r) => r as unknown as AssetMaintenance);
@@ -53,6 +59,7 @@ export async function getAllAssetData() {
     assets,
     categories,
     locations,
+    suppliers,
     maintenance,
     people,
     roles,
@@ -68,31 +75,7 @@ export async function saveAsset(
   if (partial.id && !existing) throw new SheetError("That asset was not found.", 404);
   // Edits may send only the changed fields (e.g. a status change); keep the rest as stored.
   const input = { ...(existing as Partial<Asset> | undefined), ...partial };
-  const name = input.name?.trim();
-  if (!name) throw new SheetError("Asset name is required.", 400);
-
-  const timestamp = now();
-  const fields: Fields = {
-    name,
-    tag_code: input.tag_code?.trim() || "",
-    category_id: input.category_id || "",
-    brand: input.brand?.trim() || "",
-    model: input.model?.trim() || "",
-    serial_number: input.serial_number?.trim() || "",
-    status: input.status || "Available",
-    condition: input.condition || "Good",
-    location_id: input.location_id || "",
-    department: input.department?.trim() || "",
-    custodian_email: input.custodian_email?.trim() || "",
-    assigned_date: input.assigned_date || "",
-    expected_return: input.expected_return || "",
-    purchase_date: input.purchase_date || "",
-    purchase_price: input.purchase_price || "",
-    supplier: input.supplier?.trim() || "",
-    warranty_expiry: input.warranty_expiry || "",
-    notes: input.notes?.trim() || "",
-    image_url: input.image_url?.trim() || "",
-  };
+  const fields = assetFields(input);
 
   if (input.id) {
     const updated = (await patchRow("Assets", input.id, fields)) as unknown as Asset;
@@ -112,39 +95,102 @@ export async function saveAsset(
     return updated;
   }
 
-  const id = newId("AST");
-  if (!fields.tag_code) {
-    // The category's prefix + 6 digits, retried until it is unused.
-    const prefix = tabs.Asset_Categories.rows.find((c) => c.id === fields.category_id)?.prefix || "AST-";
-    const taken = new Set(tabs.Assets.rows.map((r) => r.tag_code));
+  const [created] = await createAssets(tabs, fields, 1, [String(fields.serial_number)], actorEmail);
+  return created;
+}
+
+// Registers `quantity` identical assets in one sheet write; each gets its own tag and (optional) serial.
+export async function registerAssets(
+  partial: Partial<Asset>,
+  quantity: number,
+  serials: string[],
+  actorEmail: string
+): Promise<Asset[]> {
+  return createAssets(await loadAll(), assetFields(partial), quantity, serials, actorEmail);
+}
+
+function assetFields(input: Partial<Asset>): Fields {
+  const name = input.name?.trim();
+  if (!name) throw new SheetError("Asset name is required.", 400);
+  return {
+    name,
+    tag_code: input.tag_code?.trim() || "",
+    category_id: input.category_id || "",
+    brand: input.brand?.trim() || "",
+    model: input.model?.trim() || "",
+    serial_number: input.serial_number?.trim() || "",
+    status: input.status || "Available",
+    condition: input.condition || "Good",
+    location_id: input.location_id || "",
+    department: input.department?.trim() || "",
+    custodian_email: input.custodian_email?.trim() || "",
+    assigned_date: input.assigned_date || "",
+    expected_return: input.expected_return || "",
+    purchase_date: input.purchase_date || "",
+    purchase_price: input.purchase_price || "",
+    supplier: input.supplier?.trim() || "",
+    warranty_expiry: input.warranty_expiry || "",
+    notes: input.notes?.trim() || "",
+    image_url: input.image_url?.trim() || "",
+    invoice_no: input.invoice_no?.trim() || "",
+    supplier_id: input.supplier_id || "",
+  };
+}
+
+async function createAssets(
+  tabs: Awaited<ReturnType<typeof loadAll>>,
+  base: Fields,
+  quantity: number,
+  serialInput: string[],
+  actorEmail: string
+): Promise<Asset[]> {
+  const { serials, error } = normalizeSerials(serialInput, quantity);
+  if (error) throw new SheetError(error, 400);
+
+  const used = new Set(
+    tabs.Assets.rows.filter((r) => r.id && !r.archived_at).map((r) => r.serial_number?.trim().toLowerCase()).filter(Boolean)
+  );
+  const clashes = serials.filter((s) => used.has(s.toLowerCase()));
+  if (clashes.length > 0) throw new SheetError(`Serial number already registered: ${clashes.join(", ")}.`, 400);
+
+  const customTag = String(base.tag_code || "").trim();
+  if (customTag && quantity > 1) throw new SheetError("Leave the tag code blank when registering more than one asset.", 400);
+
+  // The category's prefix + 6 digits, retried until it is unused.
+  const prefix = tabs.Asset_Categories.rows.find((c) => c.id === base.category_id)?.prefix || "AST-";
+  const taken = new Set(tabs.Assets.rows.map((r) => r.tag_code));
+  const nextTag = () => {
     let tag: string;
     do tag = `${prefix}${Math.floor(100000 + Math.random() * 900000)}`;
     while (taken.has(tag));
-    fields.tag_code = tag;
-  }
+    taken.add(tag);
+    return tag;
+  };
 
-  const record = {
-    ...fields,
-    id,
+  const timestamp = now();
+  const records = Array.from({ length: quantity }, (_, i) => ({
+    ...base,
+    id: newId("AST"),
+    tag_code: customTag || nextTag(),
+    serial_number: serials[i] || "",
     created_by: actorEmail,
     created_at: timestamp,
     updated_at: timestamp,
     archived_at: "",
-  };
+  }));
 
-  await appendRows("Assets", [record]);
+  await appendRows("Assets", records);
+  await logAssetActivity(
+    actorEmail,
+    records.map((r) => ({
+      kind: "created" as const,
+      entity_id: r.id,
+      to_value: String(base.status),
+      body: `Asset created with tag ${r.tag_code}`,
+    }))
+  );
 
-  await logAssetActivity(actorEmail, [
-    {
-      kind: "created",
-      entity_id: id,
-      from_value: "",
-      to_value: String(fields.status),
-      body: `Asset created with tag ${fields.tag_code}`,
-    },
-  ]);
-
-  return record as unknown as Asset;
+  return records as unknown as Asset[];
 }
 
 export async function checkoutAsset(

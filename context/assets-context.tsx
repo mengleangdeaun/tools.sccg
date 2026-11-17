@@ -14,6 +14,7 @@ import {
   AssetCategory,
   AssetLocation,
   AssetMaintenance,
+  AssetSupplier,
   Person,
   Role,
 } from "@/lib/types";
@@ -25,6 +26,7 @@ interface AssetsContextValue {
   assets: Asset[];
   categories: AssetCategory[];
   locations: AssetLocation[];
+  suppliers: AssetSupplier[];
   maintenance: AssetMaintenance[];
   people: Person[];
   roles: Role[];
@@ -44,8 +46,9 @@ interface AssetsContextValue {
   clearSelectForPrint: () => void;
 
   // Modals
-  assetModalState: { open: boolean; asset?: Asset };
-  openAssetModal: (asset?: Asset) => void;
+  // asset = edit it; template = register a new asset prefilled from it (Duplicate).
+  assetModalState: { open: boolean; asset?: Asset; template?: Asset };
+  openAssetModal: (asset?: Asset, template?: Asset) => void;
   closeAssetModal: () => void;
 
   checkoutModalState: { open: boolean; asset?: Asset };
@@ -75,6 +78,7 @@ interface AssetsContextValue {
   syncNow: () => Promise<void>;
   showToast: (msg: string) => void;
   onSaveAsset: (fields: Partial<Asset>) => Promise<Asset>;
+  onRegisterAssets: (fields: Partial<Asset>, quantity: number, serials: string[]) => Promise<Asset[]>;
   onDeleteAsset: (id: string) => Promise<void>;
   onCheckout: (input: { asset_id: string; custodian_email: string; department?: string; expected_return?: string; notes?: string }) => Promise<void>;
   onCheckin: (input: { asset_id: string; condition: string; location_id?: string; notes?: string }) => Promise<void>;
@@ -87,6 +91,7 @@ export function AssetsProvider({ children }: { children: ReactNode }) {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [categories, setCategories] = useState<AssetCategory[]>([]);
   const [locations, setLocations] = useState<AssetLocation[]>([]);
+  const [suppliers, setSuppliers] = useState<AssetSupplier[]>([]);
   const [maintenance, setMaintenance] = useState<AssetMaintenance[]>([]);
   const [people, setPeople] = useState<Person[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
@@ -97,7 +102,7 @@ export function AssetsProvider({ children }: { children: ReactNode }) {
   const [detailDrawerTab, setDetailDrawerTab] = useState<DrawerTab>("overview");
   const [selectedForPrint, setSelectedForPrint] = useState<Asset[]>([]);
 
-  const [assetModalState, setAssetModalState] = useState<{ open: boolean; asset?: Asset }>({ open: false });
+  const [assetModalState, setAssetModalState] = useState<{ open: boolean; asset?: Asset; template?: Asset }>({ open: false });
   const [checkoutModalState, setCheckoutModalState] = useState<{ open: boolean; asset?: Asset }>({ open: false });
   const [checkinModalState, setCheckinModalState] = useState<{ open: boolean; asset?: Asset }>({ open: false });
   const [printModalState, setPrintModalState] = useState<{ open: boolean; assets: Asset[]; mode: "single" | "sheet" }>({ open: false, assets: [], mode: "single" });
@@ -122,6 +127,7 @@ export function AssetsProvider({ children }: { children: ReactNode }) {
         setAssets(data.assets || []);
         setCategories(data.categories || []);
         setLocations(data.locations || []);
+        setSuppliers(data.suppliers || []);
         setMaintenance(data.maintenance || []);
         setPeople(data.people || []);
         setRoles(data.roles || []);
@@ -172,7 +178,7 @@ export function AssetsProvider({ children }: { children: ReactNode }) {
     setSelectedForPrint([]);
   }, []);
 
-  const openAssetModal = (asset?: Asset) => setAssetModalState({ open: true, asset });
+  const openAssetModal = (asset?: Asset, template?: Asset) => setAssetModalState({ open: true, asset, template });
   const closeAssetModal = () => setAssetModalState({ open: false });
 
   const openCheckoutModal = (asset: Asset) => setCheckoutModalState({ open: true, asset });
@@ -205,6 +211,21 @@ export function AssetsProvider({ children }: { children: ReactNode }) {
     if (detailAsset?.id === saved.id) setDetailAsset(saved);
     showToast(isNew ? "Asset registered" : "Asset updated");
     return saved;
+  };
+
+  const onRegisterAssets = async (fields: Partial<Asset>, quantity: number, serials: string[]): Promise<Asset[]> => {
+    const res = await fetch("/api/assets", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...fields, quantity, serial_numbers: serials }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Failed to register assets");
+
+    const created: Asset[] = data.assets;
+    setAssets((prev) => [...created, ...prev]);
+    showToast(created.length === 1 ? "Asset registered" : `${created.length} assets registered`);
+    return created;
   };
 
   const onDeleteAsset = async (id: string) => {
@@ -284,6 +305,7 @@ export function AssetsProvider({ children }: { children: ReactNode }) {
         assets,
         categories,
         locations,
+        suppliers,
         maintenance,
         people,
         roles,
@@ -321,6 +343,7 @@ export function AssetsProvider({ children }: { children: ReactNode }) {
         syncNow,
         showToast,
         onSaveAsset,
+        onRegisterAssets,
         onDeleteAsset,
         onCheckout,
         onCheckin,

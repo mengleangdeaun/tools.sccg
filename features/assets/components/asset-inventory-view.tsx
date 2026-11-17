@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { ArrowDownLeft, Boxes, Grid, List, Plus, Printer, QrCode, UserCheck } from "lucide-react";
+import { ArrowDownLeft, Boxes, Copy, Grid, List, Plus, Printer, QrCode, UserCheck } from "lucide-react";
 import { Asset } from "@/lib/types";
 import { useAssets } from "@/context/assets-context";
 import { useAuth } from "@/context/auth-context";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ResponsiveSelect } from "@/components/ui/responsive-select";
+import { SearchableSelect } from "@/components/shared/searchable-select";
 import { PageHeader } from "@/components/shared/page-header";
 import { FilterBar, FilterChip, FilterField } from "@/components/shared/filter-bar";
 import { DataColumn, DataTable } from "@/components/shared/data-table";
@@ -75,6 +76,7 @@ export function AssetInventoryView() {
         asset.name.toLowerCase().includes(q) ||
         asset.tag_code.toLowerCase().includes(q) ||
         (asset.serial_number && asset.serial_number.toLowerCase().includes(q)) ||
+        (asset.invoice_no && asset.invoice_no.toLowerCase().includes(q)) ||
         (asset.custodian_email && asset.custodian_email.toLowerCase().includes(q));
 
       return (
@@ -201,11 +203,12 @@ export function AssetInventoryView() {
     {
       key: "actions",
       header: <span className="sr-only">Actions</span>,
-      className: "w-28",
+      className: "w-36",
       align: "right",
       interactive: true,
       cell: (asset) => (
         <div className="flex items-center justify-end gap-1">
+          {can("assets.create") && <ActionButton icon={<Copy />} label="Duplicate" onClick={() => openAssetModal(undefined, asset)} />}
           {can("assets.print") && <ActionButton icon={<QrCode />} label="Print QR label" onClick={() => openPrintModal([asset], "single")} />}
           {custodyAction(asset)}
         </div>
@@ -234,6 +237,7 @@ export function AssetInventoryView() {
       </dl>
       <div className="mt-auto flex flex-wrap gap-2">
         {can("assets.print") && <ActionButton variant="outline" icon={<QrCode />} label="Print label" showLabel onClick={() => openPrintModal([asset], "single")} />}
+        {can("assets.create") && <ActionButton variant="outline" icon={<Copy />} label="Duplicate" onClick={() => openAssetModal(undefined, asset)} />}
         {custodyAction(asset, true)}
       </div>
     </Card>
@@ -267,7 +271,7 @@ export function AssetInventoryView() {
       <FilterBar
         search={search}
         onSearchChange={setSearch}
-        searchPlaceholder="Search tag, name, serial, custodian..."
+        searchPlaceholder="Search tag, name, serial, invoice, custodian..."
         chips={chips}
         onClearPanel={clearPanel}
         hasActiveFilters={chips.length > 0 || Boolean(search.trim())}
@@ -278,10 +282,10 @@ export function AssetInventoryView() {
               <ResponsiveSelect aria-label="Status" value={status} onValueChange={setStatus} options={statusOptions} />
             </FilterField>
             <FilterField label="Category">
-              <ResponsiveSelect aria-label="Category" value={category} onValueChange={setCategory} options={categoryOptions} />
+              <SearchableSelect aria-label="Category" value={category} onValueChange={setCategory} options={categoryOptions} searchPlaceholder="Search categories" />
             </FilterField>
             <FilterField label="Location">
-              <ResponsiveSelect aria-label="Location" value={location} onValueChange={setLocationState} options={locationOptions} />
+              <SearchableSelect aria-label="Location" value={location} onValueChange={setLocationState} options={locationOptions} searchPlaceholder="Search locations" />
             </FilterField>
           </>
         }

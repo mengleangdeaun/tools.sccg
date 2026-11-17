@@ -37,6 +37,19 @@ export interface Asset {
   created_at: string;
   updated_at: string;
   archived_at?: string;
+  invoice_no: string;
+  supplier_id: string;
+}
+
+export interface AssetSupplier {
+  id: string;
+  name: string;
+  contact_name: string;
+  phone: string;
+  email: string;
+  address: string;
+  notes: string;
+  archived_at?: string;
 }
 
 export interface AssetCategory {
@@ -126,6 +139,7 @@ export type NavView =
   | "scanner"
   | "categories"
   | "locations"
+  | "suppliers"
   | "team"
   | "roles";
 
