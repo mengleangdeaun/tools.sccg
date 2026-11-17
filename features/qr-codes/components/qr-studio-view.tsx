@@ -114,7 +114,7 @@ export function QrStudioView() {
             </Button>
             <Button size="sm" disabled={selectedForPrint.length === 0} onClick={() => openPrintModal(selectedForPrint, "sheet")}>
               <QrCode />
-              Sticker sheet ({selectedForPrint.length})
+              4 per page ({selectedForPrint.length})
             </Button>
           </>
         }

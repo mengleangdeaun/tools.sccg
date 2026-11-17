@@ -198,7 +198,8 @@
   }
 }
 
-/* QR label printing: 100 x 100 mm thermal roll, one label per page. Labels render into #print-root. */
+/* QR label printing: 100 x 100 mm thermal roll. Each page is either one .qr-label or one .qr-page
+   (2 x 2 grid of 50 mm labels); both are direct children of #print-root. */
 @media screen {
   #print-root {
     display: none;
@@ -222,13 +223,13 @@
   #print-root {
     display: block !important;
   }
-  .qr-label {
+  #print-root > * {
     break-after: page;
     break-inside: avoid;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
-  .qr-label:last-child {
+  #print-root > :last-child {
     break-after: auto;
   }
 }
