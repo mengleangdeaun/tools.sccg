@@ -156,13 +156,26 @@ async function createAssets(
   const customTag = String(base.tag_code || "").trim();
   if (customTag && quantity > 1) throw new SheetError("Leave the tag code blank when registering more than one asset.", 400);
 
-  // The category's prefix + 6 digits, retried until it is unused.
-  const prefix = tabs.Asset_Categories.rows.find((c) => c.id === base.category_id)?.prefix || "AST-";
+  // Tag code: <prefix>-YYMMDD-NN, sequential per day, retried until unused.
+  const rawPrefix = tabs.Asset_Categories.rows.find((c) => c.id === base.category_id)?.prefix || "AST-";
+  const basePrefix = String(rawPrefix).replace(/-+$/, "");
+  const d = new Date();
+  const datePart = `${String(d.getFullYear()).slice(2)}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
+  const tagPrefix = `${basePrefix}-${datePart}-`;
   const taken = new Set(tabs.Assets.rows.map((r) => r.tag_code));
   const nextTag = () => {
-    let tag: string;
-    do tag = `${prefix}${Math.floor(100000 + Math.random() * 900000)}`;
-    while (taken.has(tag));
+    let seq = 1;
+    for (const t of taken) {
+      if (t && t.startsWith(tagPrefix)) {
+        const n = parseInt(t.slice(tagPrefix.length), 10);
+        if (!Number.isNaN(n) && n >= seq) seq = n + 1;
+      }
+    }
+    let tag = `${tagPrefix}${String(seq).padStart(2, "0")}`;
+    while (taken.has(tag)) {
+      seq += 1;
+      tag = `${tagPrefix}${String(seq).padStart(2, "0")}`;
+    }
     taken.add(tag);
     return tag;
   };
